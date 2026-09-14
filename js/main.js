@@ -5,6 +5,9 @@ const GITHUB_USERNAME = 'huiwoo-jo';
 const SCROLL_HEADER_THRESHOLD = 60;
 const SCROLL_TOP_THRESHOLD = 300;
 const OBSERVER_THRESHOLD = 0.2;
+const TYPE_SPEED = 45;
+// TODO: https://formspree.io 에서 본인 폼을 만들고 아래 ID를 교체하세요.
+const CONTACT_FORM_ENDPOINT = 'https://formspree.io/f/YOUR_FORM_ID';
 
 // ===================================================================
 // Theme (dark mode) — state: theme → render: document data-theme
@@ -32,6 +35,31 @@ themeToggleBtn.addEventListener('click', () => {
 	const next = current === 'dark' ? 'light' : 'dark';
 	applyTheme(next);
 });
+
+// ===================================================================
+// Hero typing effect (bonus) — 텍스트를 한 글자씩 렌더링
+// ===================================================================
+const heroSubtitleEl = document.querySelector('.hero__subtitle');
+
+const typeText = (el, text, speed) => {
+	el.textContent = '';
+	el.classList.add('typing');
+	let index = 0;
+
+	const typeNextChar = () => {
+		if (index < text.length) {
+			el.textContent += text[index];
+			index += 1;
+			setTimeout(typeNextChar, speed);
+		} else {
+			el.classList.remove('typing');
+		}
+	};
+
+	typeNextChar();
+};
+
+typeText(heroSubtitleEl, heroSubtitleEl.textContent, TYPE_SPEED);
 
 // ===================================================================
 // Hamburger menu — state: menu open/closed → render: classList 'active'
@@ -106,9 +134,14 @@ const projectsLoadingEl = document.querySelector('#projects-loading');
 const projectsErrorEl = document.querySelector('#projects-error');
 const projectsEmptyEl = document.querySelector('#projects-empty');
 const projectsGridEl = document.querySelector('#projects-grid');
+const projectsFiltersEl = document.querySelector('#projects-filters');
 const projectsRetryBtn = document.querySelector('#projects-retry');
 
-const PROJECT_STATE_ELS = [projectsLoadingEl, projectsErrorEl, projectsEmptyEl, projectsGridEl];
+const PROJECT_STATE_ELS = [projectsLoadingEl, projectsErrorEl, projectsEmptyEl, projectsGridEl, projectsFiltersEl];
+
+// 언어 필터 상태 (bonus): allRepos = 전체 목록, activeLanguage = 현재 선택된 필터
+let allRepos = [];
+let activeLanguage = 'all';
 
 const setProjectsState = (state) => {
 	PROJECT_STATE_ELS.forEach((el) => {
@@ -117,7 +150,10 @@ const setProjectsState = (state) => {
 	if (state === 'loading') projectsLoadingEl.hidden = false;
 	if (state === 'error') projectsErrorEl.hidden = false;
 	if (state === 'empty') projectsEmptyEl.hidden = false;
-	if (state === 'success') projectsGridEl.hidden = false;
+	if (state === 'success') {
+		projectsGridEl.hidden = false;
+		projectsFiltersEl.hidden = false;
+	}
 };
 
 const createProjectCard = ({ name, description, html_url, stargazers_count, language }) => {
@@ -133,6 +169,45 @@ const createProjectCard = ({ name, description, html_url, stargazers_count, lang
 		<a class="btn btn--outline" href="${html_url}" target="_blank" rel="noopener noreferrer">GitHub에서 보기</a>
 	`;
 	return card;
+};
+
+// 현재 activeLanguage 기준으로 allRepos를 걸러 그리드에 렌더링 (bonus: array.filter())
+const renderFilteredProjects = () => {
+	const filtered =
+		activeLanguage === 'all' ? allRepos : allRepos.filter((repo) => repo.language === activeLanguage);
+
+	projectsGridEl.innerHTML = '';
+	filtered.forEach((repo) => projectsGridEl.appendChild(createProjectCard(repo)));
+};
+
+const createFilterButton = (value, label) => {
+	const btn = document.createElement('button');
+	btn.type = 'button';
+	btn.className = 'filter-btn';
+	btn.textContent = label;
+	btn.dataset.language = value;
+	btn.classList.toggle('active', value === activeLanguage);
+
+	btn.addEventListener('click', () => {
+		activeLanguage = value;
+		renderFilteredProjects();
+		projectsFiltersEl.querySelectorAll('.filter-btn').forEach((otherBtn) => {
+			otherBtn.classList.toggle('active', otherBtn.dataset.language === value);
+		});
+	});
+
+	return btn;
+};
+
+// repos에 등장한 언어들로 필터 버튼 목록을 새로 그림 (bonus)
+const renderProjectFilters = (repos) => {
+	const languages = [...new Set(repos.map((repo) => repo.language).filter(Boolean))];
+
+	projectsFiltersEl.innerHTML = '';
+	projectsFiltersEl.appendChild(createFilterButton('all', '전체'));
+	languages.forEach((language) => {
+		projectsFiltersEl.appendChild(createFilterButton(language, language));
+	});
 };
 
 const loadProjects = async () => {
@@ -152,17 +227,16 @@ const loadProjects = async () => {
 			return;
 		}
 
-		const cards = repos
-			.filter((repo) => !repo.fork)
-			.map((repo) => createProjectCard(repo));
+		allRepos = repos.filter((repo) => !repo.fork);
 
-		if (cards.length === 0) {
+		if (allRepos.length === 0) {
 			setProjectsState('empty');
 			return;
 		}
 
-		projectsGridEl.innerHTML = '';
-		cards.forEach((card) => projectsGridEl.appendChild(card));
+		activeLanguage = 'all';
+		renderProjectFilters(allRepos);
+		renderFilteredProjects();
 		setProjectsState('success');
 	} catch (error) {
 		console.error('Failed to load GitHub projects:', error);
@@ -182,6 +256,8 @@ const nameInput = document.querySelector('#name');
 const emailInput = document.querySelector('#email');
 const messageInput = document.querySelector('#message');
 const formSuccessEl = document.querySelector('#form-success');
+const formSubmitErrorEl = document.querySelector('#form-submit-error');
+const contactSubmitBtn = contactForm.querySelector('.contact__submit');
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -234,12 +310,35 @@ const validateForm = () => {
 	});
 });
 
-contactForm.addEventListener('submit', (event) => {
+// 폼 실제 전송 (bonus): Formspree로 POST, 로딩/성공/에러 상태를 UI로 표현
+contactForm.addEventListener('submit', async (event) => {
 	event.preventDefault();
 	formSuccessEl.hidden = true;
+	formSubmitErrorEl.hidden = true;
 
 	if (!validateForm()) return;
 
-	formSuccessEl.hidden = false;
-	contactForm.reset();
+	contactSubmitBtn.disabled = true;
+	contactSubmitBtn.textContent = '전송 중...';
+
+	try {
+		const response = await fetch(CONTACT_FORM_ENDPOINT, {
+			method: 'POST',
+			headers: { Accept: 'application/json' },
+			body: new FormData(contactForm),
+		});
+
+		if (!response.ok) {
+			throw new Error(`Form submit failed: ${response.status}`);
+		}
+
+		formSuccessEl.hidden = false;
+		contactForm.reset();
+	} catch (error) {
+		console.error('Failed to send contact form:', error);
+		formSubmitErrorEl.hidden = false;
+	} finally {
+		contactSubmitBtn.disabled = false;
+		contactSubmitBtn.textContent = 'Send';
+	}
 });

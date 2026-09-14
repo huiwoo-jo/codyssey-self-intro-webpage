@@ -45,6 +45,13 @@ Codyssey `B1-1` 미션 결과물입니다.
 - **GitHub API 연동**: 본인 저장소 목록을 fetch로 가져와 Projects 섹션에 카드로 렌더링. 로딩(spinner) · 에러(재시도 버튼) · 빈 상태를 각각 별도 UI로 표현
 - **Contact 폼 유효성 검사**: 이름/이메일/메시지 필수 입력 검증, 이메일 형식 검증, 필드 근처에 에러 메시지 표시, 제출 시 성공 메시지 노출
 
+## 보너스 과제
+
+- **프로젝트 언어 필터링**: 불러온 저장소의 언어를 모아 필터 버튼을 동적으로 생성하고, `array.filter()`로 선택한 언어의 프로젝트만 보여줍니다.
+- **타이핑 효과**: Hero 섹션의 소개 문구가 페이지 로드 시 한 글자씩 타자기처럼 렌더링됩니다.
+- **시스템 다크 모드 감지**: `prefers-color-scheme` 미디어 쿼리로 최초 진입 시 OS 다크 모드 설정을 자동 반영합니다.
+- **폼 실제 전송(Formspree)**: Contact 폼이 [Formspree](https://formspree.io)로 실제 POST 요청을 보냅니다. 사용하려면 Formspree에서 본인 폼을 생성한 뒤 `js/main.js`의 `CONTACT_FORM_ENDPOINT`와 `index.html`의 `<form action="...">` 값을 발급받은 엔드포인트로 교체하세요. 교체 전에는 요청이 실패하며, 이때도 에러 상태 UI("전송에 실패했습니다")가 정상적으로 표시됩니다.
+
 ### 상태 → 렌더링 흐름 예시
 
 1. 다크 모드 토글 클릭 → `theme` 상태 변경 → `document.documentElement[data-theme]` 및 전체 색상 변수 갱신

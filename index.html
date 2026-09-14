@@ -97,6 +97,8 @@
 			<h2 class="section-title animate-on-scroll">Projects</h2>
 			<p class="projects__desc animate-on-scroll">GitHub API로 최근 레포지토리를 직접 불러옵니다.</p>
 
+			<div id="projects-filters" class="projects__filters" hidden></div>
+
 			<div id="projects-loading" class="projects__state" hidden>
 				<span class="spinner" aria-hidden="true"></span>
 				<p>로딩 중...</p>
@@ -116,7 +118,13 @@
 
 		<section id="contact" class="contact">
 			<h2 class="section-title animate-on-scroll">Contact</h2>
-			<form id="contact-form" class="contact__form animate-on-scroll" novalidate>
+			<form
+				id="contact-form"
+				class="contact__form animate-on-scroll"
+				action="https://formspree.io/f/YOUR_FORM_ID"
+				method="POST"
+				novalidate
+			>
 				<div class="form-field">
 					<label for="name">이름</label>
 					<input id="name" name="name" type="text" placeholder="이름을 입력해주세요" />
@@ -137,6 +145,7 @@
 
 				<button type="submit" class="btn btn--primary contact__submit">Send</button>
 				<p id="form-success" class="form-success" role="status" hidden>메시지가 성공적으로 전송되었습니다. 감사합니다!</p>
+				<p id="form-submit-error" class="form-error" role="alert" hidden>전송에 실패했습니다. 잠시 후 다시 시도해주세요.</p>
 			</form>
 		</section>
 	</main>
