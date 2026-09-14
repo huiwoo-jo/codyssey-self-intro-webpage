@@ -8,11 +8,11 @@ Codyssey `B1-1` 미션 결과물입니다.
 
 ## 스크린샷
 
-| Desktop | Mobile | Dark Mode |
-|---|---|---|
-| _images/screenshot-desktop.png_ | _images/screenshot-mobile.png_ | _images/screenshot-dark.png_ |
+| Desktop (Light) | Desktop (Dark) |
+|---|---|
+| ![Desktop light](images/screenshot-desktop.png) | ![Desktop dark](images/screenshot-dark.png) |
 
-> 배포 후 실제 화면을 캡처하여 `images/` 폴더에 추가하고 위 표의 경로를 이미지로 교체하세요.
+> 모바일 스크린샷은 아직 없습니다. 배포된 URL을 모바일 기기 또는 브라우저 개발자 도구(반응형 모드)로 열어 캡처한 뒤 `images/screenshot-mobile.png`로 추가하고 이 섹션에 표로 붙여주세요.
 
 ## 사용 기술
 
