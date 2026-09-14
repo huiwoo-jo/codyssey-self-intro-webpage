@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>조희우 | Frontend Engineer</title>
+	<meta name="description" content="프론트엔드 개발자 조희우의 자기소개 웹페이지입니다." />
+	<link rel="preconnect" href="https://fonts.googleapis.com" />
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+	<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+	<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+	<header id="header" class="header">
+		<nav class="nav">
+			<a href="#hero" class="nav__logo">Huiwoo.dev</a>
+
+			<button id="hamburger" class="hamburger" type="button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="nav-menu">
+				<span class="hamburger__bar"></span>
+				<span class="hamburger__bar"></span>
+				<span class="hamburger__bar"></span>
+			</button>
+
+			<ul id="nav-menu" class="nav__menu">
+				<li><a href="#about" class="nav__link">About</a></li>
+				<li><a href="#skills" class="nav__link">Skills</a></li>
+				<li><a href="#projects" class="nav__link">Projects</a></li>
+				<li><a href="#contact" class="nav__link">Contact</a></li>
+				<li>
+					<button id="theme-toggle" class="theme-toggle" type="button" aria-label="다크 모드 전환">
+						<i class="fa-solid fa-moon"></i>
+					</button>
+				</li>
+			</ul>
+		</nav>
+	</header>
+
+	<main>
+		<section id="hero" class="hero">
+			<div class="hero__inner animate-on-scroll">
+				<p class="hero__eyebrow">Hello, I am</p>
+				<h1 class="hero__title">조희우 <span class="hero__title-en">(Huiwoo Jo)</span></h1>
+				<p class="hero__subtitle">사용자와 서비스를 원활하게 이어주는 프론트엔드 개발자입니다.</p>
+				<div class="hero__actions">
+					<a href="#projects" class="btn btn--primary">View Projects</a>
+					<a href="#contact" class="btn btn--outline">Contact</a>
+				</div>
+			</div>
+		</section>
+
+		<section id="about" class="about">
+			<h2 class="section-title animate-on-scroll">About</h2>
+			<article class="about__content animate-on-scroll">
+				<img class="about__photo" src="images/profile.jpg" alt="조희우 프로필 사진" width="220" height="220" />
+				<div class="about__text">
+					<p>
+						대학 재학 중 모바일 앱 개발 프로젝트에서 기능을 구현하며 사용자에게 서비스를 전달하는 개발의 즐거움을 느꼈습니다.
+						프로젝트를 진행하면서 사용자 경험과 서비스의 완성도를 높이는 프론트엔드 개발에 관심을 갖게 되어 웹 개발을 더 깊이 배우고자 했습니다.
+					</p>
+					<p>
+						구름 KDT 풀스택 과정에서 React 기반 웹 개발을 본격적으로 경험하며 프론트엔드 개발자로서의 방향을 구체화했고,
+						수료 이후에는 개인 프로젝트와 사이드 프로젝트를 꾸준히 이어가며 역량을 쌓고 있습니다.
+						사용자와 서비스를 원활하게 이어주는 소통 창구가 되는 개발자를 목표로 합니다.
+					</p>
+				</div>
+			</article>
+		</section>
+
+		<section id="skills" class="skills">
+			<h2 class="section-title animate-on-scroll">Skills</h2>
+			<div class="skills__groups">
+				<article class="skills__group animate-on-scroll">
+					<h3>Web Fundamentals</h3>
+					<ul class="skills__list">
+						<li>HTML5</li>
+						<li>CSS3 (Flexbox / Grid)</li>
+						<li>JavaScript (ES6+)</li>
+						<li>Responsive Web</li>
+						<li>Git &amp; GitHub</li>
+					</ul>
+				</article>
+				<article class="skills__group animate-on-scroll">
+					<h3>Frontend Stack</h3>
+					<ul class="skills__list">
+						<li>React</li>
+						<li>Next.js</li>
+						<li>TypeScript</li>
+						<li>TailwindCSS</li>
+						<li>REST API / fetch</li>
+					</ul>
+				</article>
+			</div>
+		</section>
+
+		<section id="projects" class="projects">
+			<h2 class="section-title animate-on-scroll">Projects</h2>
+			<p class="projects__desc animate-on-scroll">GitHub API로 최근 레포지토리를 직접 불러옵니다.</p>
+
+			<div id="projects-loading" class="projects__state" hidden>
+				<span class="spinner" aria-hidden="true"></span>
+				<p>로딩 중...</p>
+			</div>
+
+			<div id="projects-error" class="projects__state" hidden>
+				<p>프로젝트를 불러올 수 없습니다.</p>
+				<button id="projects-retry" class="btn btn--outline" type="button">다시 시도</button>
+			</div>
+
+			<div id="projects-empty" class="projects__state" hidden>
+				<p>표시할 프로젝트가 없습니다.</p>
+			</div>
+
+			<div id="projects-grid" class="projects__grid" hidden></div>
+		</section>
+
+		<section id="contact" class="contact">
+			<h2 class="section-title animate-on-scroll">Contact</h2>
+			<form id="contact-form" class="contact__form animate-on-scroll" novalidate>
+				<div class="form-field">
+					<label for="name">이름</label>
+					<input id="name" name="name" type="text" placeholder="이름을 입력해주세요" />
+					<p id="name-error" class="form-error" role="alert"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="email">이메일</label>
+					<input id="email" name="email" type="email" placeholder="example@email.com" />
+					<p id="email-error" class="form-error" role="alert"></p>
+				</div>
+
+				<div class="form-field">
+					<label for="message">메시지</label>
+					<textarea id="message" name="message" rows="5" placeholder="전하고 싶은 메시지를 입력해주세요"></textarea>
+					<p id="message-error" class="form-error" role="alert"></p>
+				</div>
+
+				<button type="submit" class="btn btn--primary contact__submit">Send</button>
+				<p id="form-success" class="form-success" role="status" hidden>메시지가 성공적으로 전송되었습니다. 감사합니다!</p>
+			</form>
+		</section>
+	</main>
+
+	<footer class="footer">
+		<p>&copy; 2026 Huiwoo Jo. All rights reserved.</p>
+		<ul class="footer__links">
+			<li><a href="https://github.com/huiwoo-jo" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+			<li><a href="https://www.linkedin.com/in/huiwoo-jo/" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
+			<li><a href="https://huiwoo-devlog.tistory.com" target="_blank" rel="noopener noreferrer">Blog</a></li>
+		</ul>
+	</footer>
+
+	<button id="scroll-top" class="scroll-top" type="button" aria-label="맨 위로 이동">
+		<i class="fa-solid fa-arrow-up"></i>
+	</button>
+
+	<script src="js/main.js" defer></script>
+</body>
+</html>

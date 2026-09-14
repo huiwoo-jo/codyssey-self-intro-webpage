@@ -1,0 +1,245 @@
+// ===================================================================
+// Config
+// ===================================================================
+const GITHUB_USERNAME = 'huiwoo-jo';
+const SCROLL_HEADER_THRESHOLD = 60;
+const SCROLL_TOP_THRESHOLD = 300;
+const OBSERVER_THRESHOLD = 0.2;
+
+// ===================================================================
+// Theme (dark mode) — state: theme → render: document data-theme
+// ===================================================================
+const themeToggleBtn = document.querySelector('#theme-toggle');
+const themeIcon = themeToggleBtn.querySelector('i');
+
+const applyTheme = (theme) => {
+	document.documentElement.setAttribute('data-theme', theme);
+	themeIcon.classList.toggle('fa-moon', theme === 'light');
+	themeIcon.classList.toggle('fa-sun', theme === 'dark');
+	localStorage.setItem('theme', theme);
+};
+
+const getInitialTheme = () => {
+	const saved = localStorage.getItem('theme');
+	if (saved === 'light' || saved === 'dark') return saved;
+	return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
+
+applyTheme(getInitialTheme());
+
+themeToggleBtn.addEventListener('click', () => {
+	const current = document.documentElement.getAttribute('data-theme');
+	const next = current === 'dark' ? 'light' : 'dark';
+	applyTheme(next);
+});
+
+// ===================================================================
+// Hamburger menu — state: menu open/closed → render: classList 'active'
+// ===================================================================
+const hamburger = document.querySelector('#hamburger');
+const navMenu = document.querySelector('#nav-menu');
+
+const closeMenu = () => {
+	hamburger.classList.remove('active');
+	navMenu.classList.remove('active');
+	hamburger.setAttribute('aria-expanded', 'false');
+};
+
+hamburger.addEventListener('click', () => {
+	const isActive = navMenu.classList.toggle('active');
+	hamburger.classList.toggle('active', isActive);
+	hamburger.setAttribute('aria-expanded', String(isActive));
+});
+
+document.querySelectorAll('.nav__link').forEach((link) => {
+	link.addEventListener('click', (event) => {
+		event.preventDefault();
+		closeMenu();
+
+		const targetId = link.getAttribute('href');
+		const target = document.querySelector(targetId);
+		if (target) {
+			target.scrollIntoView({ behavior: 'smooth' });
+		}
+	});
+});
+
+// ===================================================================
+// Scroll effects — header background, scroll-to-top visibility
+// ===================================================================
+const header = document.querySelector('#header');
+const scrollTopBtn = document.querySelector('#scroll-top');
+
+window.addEventListener('scroll', () => {
+	header.classList.toggle('scrolled', window.scrollY > SCROLL_HEADER_THRESHOLD);
+	scrollTopBtn.classList.toggle('show', window.scrollY > SCROLL_TOP_THRESHOLD);
+});
+
+scrollTopBtn.addEventListener('click', () => {
+	window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ===================================================================
+// Scroll animation (Intersection Observer)
+// ===================================================================
+const animatedEls = document.querySelectorAll('.animate-on-scroll');
+
+const scrollObserver = new IntersectionObserver(
+	(entries) => {
+		entries.forEach((entry) => {
+			if (entry.isIntersecting) {
+				entry.target.classList.add('in-view');
+				scrollObserver.unobserve(entry.target);
+			}
+		});
+	},
+	{ threshold: OBSERVER_THRESHOLD }
+);
+
+animatedEls.forEach((el) => scrollObserver.observe(el));
+
+// ===================================================================
+// Projects — GitHub API integration
+// state: idle → loading → success | error | empty → render: hidden 속성 토글
+// ===================================================================
+const projectsLoadingEl = document.querySelector('#projects-loading');
+const projectsErrorEl = document.querySelector('#projects-error');
+const projectsEmptyEl = document.querySelector('#projects-empty');
+const projectsGridEl = document.querySelector('#projects-grid');
+const projectsRetryBtn = document.querySelector('#projects-retry');
+
+const PROJECT_STATE_ELS = [projectsLoadingEl, projectsErrorEl, projectsEmptyEl, projectsGridEl];
+
+const setProjectsState = (state) => {
+	PROJECT_STATE_ELS.forEach((el) => {
+		el.hidden = true;
+	});
+	if (state === 'loading') projectsLoadingEl.hidden = false;
+	if (state === 'error') projectsErrorEl.hidden = false;
+	if (state === 'empty') projectsEmptyEl.hidden = false;
+	if (state === 'success') projectsGridEl.hidden = false;
+};
+
+const createProjectCard = ({ name, description, html_url, stargazers_count, language }) => {
+	const card = document.createElement('article');
+	card.className = 'project-card';
+	card.innerHTML = `
+		<h3 class="project-card__name">${name}</h3>
+		<p class="project-card__desc">${description ?? '설명이 없는 프로젝트입니다.'}</p>
+		<div class="project-card__meta">
+			<span>⭐ ${stargazers_count}</span>
+			<span>${language ?? '—'}</span>
+		</div>
+		<a class="btn btn--outline" href="${html_url}" target="_blank" rel="noopener noreferrer">GitHub에서 보기</a>
+	`;
+	return card;
+};
+
+const loadProjects = async () => {
+	setProjectsState('loading');
+
+	try {
+		const response = await fetch(`https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=6`);
+
+		if (!response.ok) {
+			throw new Error(`GitHub API error: ${response.status}`);
+		}
+
+		const repos = await response.json();
+
+		if (!Array.isArray(repos) || repos.length === 0) {
+			setProjectsState('empty');
+			return;
+		}
+
+		const cards = repos
+			.filter((repo) => !repo.fork)
+			.map((repo) => createProjectCard(repo));
+
+		if (cards.length === 0) {
+			setProjectsState('empty');
+			return;
+		}
+
+		projectsGridEl.innerHTML = '';
+		cards.forEach((card) => projectsGridEl.appendChild(card));
+		setProjectsState('success');
+	} catch (error) {
+		console.error('Failed to load GitHub projects:', error);
+		setProjectsState('error');
+	}
+};
+
+projectsRetryBtn.addEventListener('click', loadProjects);
+
+loadProjects();
+
+// ===================================================================
+// Contact form — state: validation errors → render: error messages
+// ===================================================================
+const contactForm = document.querySelector('#contact-form');
+const nameInput = document.querySelector('#name');
+const emailInput = document.querySelector('#email');
+const messageInput = document.querySelector('#message');
+const formSuccessEl = document.querySelector('#form-success');
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const showFieldError = (input, message) => {
+	const field = input.closest('.form-field');
+	const errorEl = field.querySelector('.form-error');
+	field.classList.toggle('has-error', Boolean(message));
+	errorEl.textContent = message ?? '';
+};
+
+const validateForm = () => {
+	const { value: name } = nameInput;
+	const { value: email } = emailInput;
+	const { value: message } = messageInput;
+
+	let isValid = true;
+
+	if (!name.trim()) {
+		showFieldError(nameInput, '이름을 입력해주세요.');
+		isValid = false;
+	} else {
+		showFieldError(nameInput, '');
+	}
+
+	if (!email.trim()) {
+		showFieldError(emailInput, '이메일을 입력해주세요.');
+		isValid = false;
+	} else if (!EMAIL_PATTERN.test(email)) {
+		showFieldError(emailInput, '올바른 이메일 형식이 아닙니다.');
+		isValid = false;
+	} else {
+		showFieldError(emailInput, '');
+	}
+
+	if (!message.trim()) {
+		showFieldError(messageInput, '메시지를 입력해주세요.');
+		isValid = false;
+	} else {
+		showFieldError(messageInput, '');
+	}
+
+	return isValid;
+};
+
+[nameInput, emailInput, messageInput].forEach((input) => {
+	input.addEventListener('input', () => {
+		if (input.closest('.form-field').classList.contains('has-error')) {
+			validateForm();
+		}
+	});
+});
+
+contactForm.addEventListener('submit', (event) => {
+	event.preventDefault();
+	formSuccessEl.hidden = true;
+
+	if (!validateForm()) return;
+
+	formSuccessEl.hidden = false;
+	contactForm.reset();
+});
