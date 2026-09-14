@@ -6,8 +6,7 @@ const SCROLL_HEADER_THRESHOLD = 60;
 const SCROLL_TOP_THRESHOLD = 300;
 const OBSERVER_THRESHOLD = 0.2;
 const TYPE_SPEED = 45;
-const FORMSPREE_ID = process.env.NEXT_PUBLIC_FORMSPREE_ID;
-const CONTACT_FORM_ENDPOINT = `https://formspree.io/f/${FORMSPREE_ID}`;
+const CONTACT_FORM_ENDPOINT = "https://formspree.io/f/xzdqklew";
 
 // ===================================================================
 // Theme (dark mode) — state: theme → render: document data-theme
