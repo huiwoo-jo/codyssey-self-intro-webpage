@@ -10,9 +10,9 @@ Codyssey `B1-1` 미션 결과물입니다.
 
 | Desktop (Light) | Desktop (Dark) |
 |---|---|
-| ![Desktop light](images/screenshot-desktop.png) | ![Desktop dark](images/screenshot-dark.png) |
+| <img width="1470" height="833" alt="image" src="https://github.com/user-attachments/assets/be3401ec-353f-479a-90e3-3ff9059a56bf" /> | <img width="1470" height="833" alt="image" src="https://github.com/user-attachments/assets/ff2f55f2-3d30-48cf-9cfc-98143086a90d" /> |
 
-> 모바일 스크린샷은 아직 없습니다. 배포된 URL을 모바일 기기 또는 브라우저 개발자 도구(반응형 모드)로 열어 캡처한 뒤 `images/screenshot-mobile.png`로 추가하고 이 섹션에 표로 붙여주세요.
+> 모바일 스크린샷은 아직 없습니다.
 
 ## 사용 기술
 
